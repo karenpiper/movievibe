@@ -81,7 +81,7 @@ export default function Navigation() {
           </Link>
 
           {/* Navigation Items */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -91,35 +91,23 @@ export default function Navigation() {
                 <Link key={item.path} to={item.path}>
                   <Button
                     variant={isActive ? "default" : "ghost"}
-                    size="sm"
-                    className={`relative group rounded-full transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl' 
+                    size="icon"
+                    className={`relative group h-10 w-10 rounded-full transition-all duration-300 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
                         : isOnboarding
-                          ? 'hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:scale-105 ring-2 ring-blue-200 ring-offset-2'
-                          : 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:scale-105'
+                          ? 'ring-2 ring-blue-200 ring-offset-2 hover:bg-blue-50'
+                          : 'hover:bg-muted'
                     }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">{item.emoji}</span>
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : isOnboarding ? 'text-blue-600 group-hover:text-blue-700' : 'text-muted-foreground group-hover:text-purple-600'}`} />
-                      <span className={`font-medium ${isActive ? 'text-white' : isOnboarding ? 'text-blue-600 group-hover:text-blue-700' : 'text-foreground group-hover:text-purple-600'}`}>
-                        {item.label}
-                      </span>
-                    </div>
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : isOnboarding ? 'text-blue-600 group-hover:text-blue-700' : 'text-foreground'}`} />
+                    <span className="sr-only">{item.label}</span>
                     
                     {/* Special badge for onboarding */}
                     {isOnboarding && (
-                      <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs px-2 py-0.5 animate-pulse">
+                      <Badge className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[10px] px-1.5 py-0.5 animate-pulse">
                         New!
                       </Badge>
-                    )}
-                    
-                    {/* Active indicator */}
-                    {isActive && (
-                      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                        <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-                      </div>
                     )}
                     
                     {/* Hover tooltip */}

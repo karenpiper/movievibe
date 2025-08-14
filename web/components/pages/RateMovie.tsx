@@ -172,11 +172,11 @@ export default function RateMovie() {
 
               {movie.cast && movie.cast.length > 0 && (
                 <div className="space-y-1">
-                  <div className="flex items-center space-x-1 text-sm font-medium justify-center md:justify-start">
+                  <div className="flex items-center space-x-1 text-xs font-medium justify-center md:justify-start">
                     <Users className="w-4 h-4" />
                     <span>Cast</span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {movie.cast.slice(0, 4).join(', ')}
                     {movie.cast.length > 4 && ` and ${movie.cast.length - 4} more`}
                   </p>

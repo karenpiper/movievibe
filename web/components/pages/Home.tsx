@@ -17,6 +17,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { onboardingService } from '../../lib/onboardingService';
+import VinylDisplay from '../../components/VinylDisplay';
 
 export default function Home() {
   const hasCompletedOnboarding = onboardingService.hasCompletedOnboarding();
@@ -145,6 +146,9 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Vinyl hero display */}
+      <VinylDisplay coverUrl="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&h=500&fit=crop" />
 
       {/* How It Works */}
       <div className="space-y-8">
