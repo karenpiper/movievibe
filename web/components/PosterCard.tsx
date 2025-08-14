@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { Eye, Star } from 'lucide-react';
 import { Movie, mockApi } from '../lib/mockApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface PosterCardProps {

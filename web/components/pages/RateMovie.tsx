@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge';
 import { Star, Loader2, Clock, Users } from 'lucide-react';
 import VisualSlider from '../VisualSlider';
 import { Movie, Rating, VibePreferences, mockApi, attributeDescriptions } from '../../lib/mockApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export default function RateMovie() {

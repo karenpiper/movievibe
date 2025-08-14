@@ -7,7 +7,7 @@ import { Brain, TrendingUp, Target, Users } from 'lucide-react';
 import MovieForm from '../MovieForm';
 import { Movie, Rating } from '../../lib/mockApi';
 import { enhancedApi } from '../../lib/enhancedApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function LogMovie() {
   const [isLoading, setIsLoading] = useState(false);

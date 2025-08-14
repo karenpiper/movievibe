@@ -9,7 +9,7 @@ import VisualSlider from '../VisualSlider';
 import PosterCard from '../PosterCard';
 import { VibePreferences, dimensionScales, enhancedMockApi } from '../../lib/enhancedMockApi';
 import { enhancedApi, EnhancedMovie } from '../../lib/enhancedApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export default function PickVibe() {
   const [preferences, setPreferences] = useState<VibePreferences>({

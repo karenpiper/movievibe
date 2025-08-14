@@ -26,7 +26,7 @@ import {
   OnboardingResults 
 } from '../../lib/onboardingService';
 import { VibePreferences, dimensionScales } from '../../lib/enhancedMockApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 type OnboardingStep = 'welcome' | 'rating' | 'results';
 

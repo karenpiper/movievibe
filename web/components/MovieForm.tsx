@@ -13,7 +13,7 @@ import { X, Search, Plus, Users, Calendar, Clock, Star, Brain, RefreshCw, Zap, T
 import VisualSlider from './VisualSlider';
 import { Movie, TMDBMovie, Rating, VibePreferences, genreMap, attributeDescriptions } from '../lib/mockApi';
 import { enhancedApi, MLPrediction } from '../lib/enhancedApi';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 const GENRE_OPTIONS = [
