@@ -338,7 +338,17 @@ class EnhancedAPI {
   // All other methods from mockApi
   updateMovie = mockApi.updateMovie;
   getMovie = mockApi.getMovie;
-  searchTMDB = mockApi.searchTMDB;
+  searchTMDB = async (query: string) => {
+    try {
+      const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error('search_failed');
+      const data = await res.json();
+      return data.results;
+    } catch (e) {
+      // fallback to mock
+      return mockApi.searchTMDB(query);
+    }
+  };
 }
 
 // Export singleton instance
