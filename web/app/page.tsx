@@ -1,3 +1,9 @@
+"use client";
+import dynamic from "next/dynamic";
+
+// Avoid SSR issues with BrowserRouter by loading on client only
+const App = dynamic(() => import("../components/App"), { ssr: false });
+
 export default function Page() {
-  return <main style={{padding: 24, fontFamily: 'system-ui'}}>✅ Next.js is live</main>;
+  return <App />;
 }
