@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Play, Pause } from 'lucide-react';
 import { dimensionScales, getDimensionLevel, getDimensionColor } from '../lib/dimensionSystem';
 
 interface VisualSliderProps {
@@ -23,6 +23,7 @@ export default function VisualSlider({
   step = 1 
 }: VisualSliderProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const scale = dimensionScales[attribute];
   if (!scale) {
@@ -42,6 +43,10 @@ export default function VisualSlider({
 
   const handleNext = () => {
     if (value < max) onChange(value + 1);
+  };
+
+  const handlePlayPause = () => {
+    setIsPlaying((prev) => !prev);
   };
 
   return (
@@ -121,31 +126,45 @@ export default function VisualSlider({
         {/* Interactive Level Selector */}
         <div className="space-y-4">
           {/* Navigation Controls */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-center gap-2">
+            {/* Prev */}
             <Button
               variant="ghost"
               size="sm"
               onClick={handlePrevious}
               disabled={value <= min}
-              className="rounded-full w-10 h-10 p-0 hover:scale-110 transition-transform"
+              className="rounded-full w-10 h-10 p-0 text-white shadow-md transition-[box-shadow,opacity,transform] hover:opacity-95 hover:shadow-lg"
+              style={{ backgroundColor: '#17a64a' }}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </Button>
-            
-            <div className="text-center">
-              <p className="text-xs font-medium text-muted-foreground">
-                Pick your level
-              </p>
-            </div>
-            
+
+            {/* Play / Pause */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePlayPause}
+              className="rounded-full w-11 h-11 p-0 text-white shadow-md transition-[box-shadow,opacity,transform] hover:opacity-95 hover:shadow-lg"
+              style={{ backgroundColor: '#17a64a' }}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isPlaying ? (
+                <Pause className="w-5 h-5" />
+              ) : (
+                <Play className="w-5 h-5" />
+              )}
+            </Button>
+
+            {/* Next */}
             <Button
               variant="ghost"
               size="sm"
               onClick={handleNext}
               disabled={value >= max}
-              className="rounded-full w-10 h-10 p-0 hover:scale-110 transition-transform"
+              className="rounded-full w-10 h-10 p-0 text-white shadow-md transition-[box-shadow,opacity,transform] hover:opacity-95 hover:shadow-lg"
+              style={{ backgroundColor: '#17a64a' }}
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
 
