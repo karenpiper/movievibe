@@ -29,11 +29,31 @@ export default function RateMovie() {
   const [overallRating, setOverallRating] = useState(3);
   const [notes, setNotes] = useState('');
 
+  // Step-by-step flow setup
+  const attributeOrder = Object.keys(attributeDescriptions) as Array<keyof VibePreferences>;
+  const OVERALL_STEP_INDEX = attributeOrder.length;
+  const NOTES_STEP_INDEX = attributeOrder.length + 1;
+  const totalSteps = attributeOrder.length + 2;
+  const [currentStep, setCurrentStep] = useState(0);
+
   useEffect(() => {
     if (movieId) {
       loadMovie();
     }
   }, [movieId]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setCurrentStep(s => Math.min(totalSteps - 1, s + 1));
+      if (e.key === 'ArrowLeft') setCurrentStep(s => Math.max(0, s - 1));
+      if (e.key === 'Enter' && currentStep < totalSteps - 1) {
+        e.preventDefault();
+        setCurrentStep(s => Math.min(totalSteps - 1, s + 1));
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [currentStep, totalSteps]);
 
   const loadMovie = async () => {
     if (!movieId) return;
@@ -108,7 +128,7 @@ export default function RateMovie() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center space-y-2">
         <h1>Rate This Movie</h1>
         <p className="text-muted-foreground">
@@ -194,91 +214,74 @@ export default function RateMovie() {
       </Card>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Attribute Sliders */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Rate Movie Attributes</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              {Object.entries(attributeDescriptions).map(([key, _]) => (
-                <VisualSlider
-                  key={key}
-                  attribute={key as keyof VibePreferences}
-                  value={ratings[key as keyof VibePreferences]}
-                  onChange={(value) => handleRatingChange(key as keyof VibePreferences, value)}
-                  min={0}
-                  max={10}
-                  step={0.1}
-                />
+        {/* Breadcrumb / progress */}
+        <div className="bg-background rounded-md border px-4 py-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Step {currentStep + 1} / {totalSteps}</span>
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalSteps }).map((_, i) => (
+                <span key={i} className={`h-2 w-2 rounded-full ${i <= currentStep ? 'bg-primary' : 'bg-muted'}`} />
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Overall Rating */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Overall Rating</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center space-x-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => handleOverallRatingClick(star)}
-                  className="text-3xl transition-colors hover:text-yellow-500"
-                >
-                  <Star
-                    className={`w-8 h-8 ${
-                      star <= overallRating
-                        ? 'fill-yellow-500 text-yellow-500'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Step content: one attribute, then overall, then notes */}
+        {currentStep < OVERALL_STEP_INDEX && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Rate: {attributeOrder[currentStep].replace('_', ' ')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <VisualSlider
+                attribute={attributeOrder[currentStep]}
+                value={ratings[attributeOrder[currentStep]]}
+                onChange={(v) => handleRatingChange(attributeOrder[currentStep], v)}
+                min={0}
+                max={10}
+                step={0.1}
+              />
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Notes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Notes (Optional)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Label htmlFor="notes" className="sr-only">Notes</Label>
-            <Textarea
-              id="notes"
-              placeholder="Any additional thoughts about this movie..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={4}
-            />
-          </CardContent>
-        </Card>
+        {currentStep === OVERALL_STEP_INDEX && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Overall Rating</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-center space-x-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} type="button" onClick={() => setOverallRating(star)} className="text-3xl transition-colors hover:text-yellow-500" aria-label={`Set overall ${star} stars`}>
+                    <Star className={`w-8 h-8 ${star <= overallRating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-300'}`} />
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        <div className="flex space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" className="flex-1" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              'Submit Rating'
-            )}
-          </Button>
+        {currentStep === NOTES_STEP_INDEX && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Notes (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Label htmlFor="notes" className="sr-only">Notes</Label>
+              <Textarea id="notes" placeholder="Any additional thoughts about this movie..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          <Button type="button" variant="outline" onClick={() => setCurrentStep(s => Math.max(0, s - 1))} disabled={currentStep === 0}>Previous</Button>
+          {currentStep < totalSteps - 1 ? (
+            <Button type="button" onClick={() => setCurrentStep(s => Math.min(totalSteps - 1, s + 1))}>Next</Button>
+          ) : (
+            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</>) : ('Submit Rating')}</Button>
+          )}
         </div>
       </form>
     </div>
