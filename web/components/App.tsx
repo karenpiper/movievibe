@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from './components/ui/sonner';
-import Navigation from './components/Navigation';
-import Home from './components/pages/Home';
-import Onboarding from './components/pages/Onboarding';
-import PickVibe from './components/pages/PickVibe';
-import LogMovie from './components/pages/LogMovie';
-import RateMovie from './components/pages/RateMovie';
-import NotFound from './components/pages/NotFound';
+import { Toaster } from './ui/sonner';
+import Navigation from './Navigation';
+import Home from './pages/Home';
+import Onboarding from './pages/Onboarding';
+import PickVibe from './pages/PickVibe';
+import LogMovie from './pages/LogMovie';
+import RateMovie from './pages/RateMovie';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
