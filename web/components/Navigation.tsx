@@ -10,7 +10,8 @@ import {
   Film,
   Heart,
   Zap,
-  Brain
+  Brain,
+  TrendingUp
 } from 'lucide-react';
 import { onboardingService } from '../lib/onboardingService';
 
@@ -39,6 +40,13 @@ export default function Navigation() {
       icon: Plus,
       emoji: '🎬',
       description: 'Log a new favorite'
+    },
+    { 
+      path: '/insights', 
+      label: 'Insights', 
+      icon: TrendingUp,
+      emoji: '📊',
+      description: 'Your taste profile & ratings'
     }
   ];
 

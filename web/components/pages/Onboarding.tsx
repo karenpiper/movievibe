@@ -15,9 +15,9 @@ import {
   Zap,
   Target,
   PartyPopper,
-  PlayCircle
+  PlayCircle,
+  ChevronRight
 } from 'lucide-react';
-import VisualSlider from '../VisualSlider';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { 
   onboardingService, 
@@ -27,6 +27,7 @@ import {
 } from '../../lib/onboardingService';
 import { VibePreferences, dimensionScales } from '../../lib/enhancedMockApi';
 import { toast } from 'sonner';
+import ExampleCovers from '../ExampleCovers';
 
 type OnboardingStep = 'welcome' | 'rating' | 'results';
 
@@ -40,7 +41,8 @@ export default function Onboarding() {
   const [isLoading, setIsLoading] = useState(false);
   const [startTime, setStartTime] = useState<Date>(new Date());
 
-  // Current rating state
+  // Current rating state - simplified to one dimension at a time
+  const [currentDimensionIndex, setCurrentDimensionIndex] = useState(0);
   const [currentRating, setCurrentRating] = useState<VibePreferences>({
     serotonin: 3,
     brainy_bonkers: 3,
@@ -54,6 +56,10 @@ export default function Onboarding() {
     subs_energy: 3
   });
   const [overallRating, setOverallRating] = useState(3);
+
+  const dimensionKeys = Object.keys(dimensionScales) as (keyof VibePreferences)[];
+  const currentDimension = dimensionKeys[currentDimensionIndex];
+  const currentDimensionScale = dimensionScales[currentDimension];
 
   // Initialize movies when component mounts
   useEffect(() => {
@@ -83,8 +89,17 @@ export default function Onboarding() {
     setStartTime(new Date());
   };
 
-  const handleDimensionChange = (dimension: keyof VibePreferences, value: number) => {
-    setCurrentRating(prev => ({ ...prev, [dimension]: value }));
+  const handleDimensionChange = (value: number) => {
+    setCurrentRating(prev => ({ ...prev, [currentDimension]: value }));
+  };
+
+  const handleNextDimension = () => {
+    if (currentDimensionIndex < dimensionKeys.length - 1) {
+      setCurrentDimensionIndex(prev => prev + 1);
+    } else {
+      // Finished all dimensions, move to next movie or finish
+      handleSaveRating();
+    }
   };
 
   const handleSaveRating = async () => {
@@ -118,6 +133,7 @@ export default function Onboarding() {
       subs_energy: 3
     });
     setOverallRating(3);
+    setCurrentDimensionIndex(0);
     setStartTime(new Date());
 
     // Move to next movie or finish
@@ -149,6 +165,7 @@ export default function Onboarding() {
         darkness: 3, novelty: 3, social_safe: 3, runtime_fit: 3, subs_energy: 3
       });
       setOverallRating(3);
+      setCurrentDimensionIndex(0);
       setStartTime(new Date());
       toast.success('Skipped movie - no problem!');
     } else {
@@ -162,7 +179,7 @@ export default function Onboarding() {
 
   const currentMovie = movies[currentMovieIndex];
   const progress = movies.length > 0 ? ((currentMovieIndex + 1) / movies.length) * 100 : 0;
-  const adjustedDimensions = Object.values(currentRating).filter(v => v !== 3).length;
+  const dimensionProgress = ((currentDimensionIndex + 1) / dimensionKeys.length) * 100;
 
   // Welcome Step
   if (step === 'welcome') {
@@ -270,34 +287,44 @@ export default function Onboarding() {
     );
   }
 
-  // Rating Step
+  // Rating Step - Simplified one dimension at a time
   if (step === 'rating' && currentMovie) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Progress Header */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">
-              🎬 Rate Movie {currentMovieIndex + 1} of {movies.length}
+              🎬 Movie {currentMovieIndex + 1} of {movies.length}
             </h1>
             <Badge variant="outline" className="text-purple-700 border-purple-300">
-              {adjustedDimensions} dimensions tuned
+              {currentDimensionIndex + 1} of {dimensionKeys.length} dimensions
             </Badge>
           </div>
           
+          {/* Movie Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Progress</span>
+              <span>Movie Progress</span>
               <span>{Math.round(progress)}% complete</span>
             </div>
             <Progress value={progress} className="h-2" />
+          </div>
+
+          {/* Dimension Progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Dimension Progress</span>
+              <span>{Math.round(dimensionProgress)}% complete</span>
+            </div>
+            <Progress value={dimensionProgress} className="h-2" />
           </div>
         </div>
 
         {/* Movie Card */}
         <Card className="bg-gradient-to-br from-background to-accent/20">
           <CardContent className="pt-6">
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Movie Poster */}
               <div className="space-y-4">
                 <div className="relative">
@@ -325,7 +352,7 @@ export default function Onboarding() {
               </div>
 
               {/* Movie Info */}
-              <div className="md:col-span-2 space-y-4">
+              <div className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-bold mb-2">{currentMovie.title}</h2>
                   <p className="text-muted-foreground mb-2">
@@ -340,73 +367,59 @@ export default function Onboarding() {
                     <strong>Why this movie:</strong> {currentMovie.why_selected}
                   </AlertDescription>
                 </Alert>
-
-                {/* Overall Rating */}
-                <div className="space-y-3">
-                  <h3 className="font-medium">Overall Rating</h3>
-                  <div className="flex items-center space-x-4">
-                    {[1, 2, 3, 4, 5].map(rating => (
-                      <Button
-                        key={rating}
-                        variant={overallRating === rating ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setOverallRating(rating)}
-                        className={`w-12 h-12 rounded-full text-lg ${
-                          overallRating === rating ? 'bg-yellow-500 hover:bg-yellow-600' : ''
-                        }`}
-                      >
-                        <Star className={`w-5 h-5 ${overallRating === rating ? 'text-white' : ''}`} />
-                      </Button>
-                    ))}
-                    <span className="text-sm text-muted-foreground">
-                      {overallRating}/5 stars
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Dimension Sliders */}
+        {/* Current Dimension Rating */}
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-xl font-bold mb-2">
-                  🎯 Rate Each Dimension
+                  🎯 Rate: {currentDimensionScale.label}
                 </h3>
                 <p className="text-muted-foreground">
-                  Move each slider to show how this movie rates on each dimension
+                  {currentDimensionScale.description}
                 </p>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-6">
-                {Object.keys(dimensionScales).slice(0, 5).map(key => (
-                  <VisualSlider
-                    key={key}
-                    attribute={key}
-                    value={currentRating[key as keyof VibePreferences]}
-                    onChange={(value) => handleDimensionChange(key as keyof VibePreferences, value)}
-                    min={1}
-                    max={5}
-                    step={1}
+              {/* Spectrum Slider */}
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-blue-600">{currentDimensionScale.low_end}</span>
+                  <span className="text-purple-600">Your Rating</span>
+                  <span className="text-red-600">{currentDimensionScale.high_end}</span>
+                </div>
+                
+                <div className="relative">
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    step="1"
+                    value={currentRating[currentDimension]}
+                    onChange={(e) => handleDimensionChange(parseInt(e.target.value))}
+                    className="w-full h-3 bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 rounded-lg appearance-none cursor-pointer slider"
+                    style={{
+                      background: `linear-gradient(to right, #3b82f6 0%, #8b5cf6 50%, #ef4444 100%)`
+                    }}
                   />
-                ))}
-              </div>
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                  </div>
+                </div>
 
-              <div className="grid lg:grid-cols-2 gap-6">
-                {Object.keys(dimensionScales).slice(5).map(key => (
-                  <VisualSlider
-                    key={key}
-                    attribute={key}
-                    value={currentRating[key as keyof VibePreferences]}
-                    onChange={(value) => handleDimensionChange(key as keyof VibePreferences, value)}
-                    min={1}
-                    max={5}
-                    step={1}
-                  />
-                ))}
+                {/* Example Movies */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">Examples:</p>
+                  <ExampleCovers titles={currentDimensionScale.example_movies} />
+                </div>
               </div>
             </div>
           </CardContent>
@@ -426,7 +439,7 @@ export default function Onboarding() {
           <div className="flex space-x-4">
             <Button
               size="lg"
-              onClick={handleSaveRating}
+              onClick={handleNextDimension}
               disabled={isLoading}
               className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-full"
             >
@@ -435,15 +448,15 @@ export default function Onboarding() {
                   <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Analyzing...
                 </>
-              ) : currentMovieIndex === movies.length - 1 ? (
+              ) : currentDimensionIndex === dimensionKeys.length - 1 ? (
                 <>
                   <PartyPopper className="w-5 h-5 mr-3" />
-                  Finish & Get Results!
+                  Next Movie
                 </>
               ) : (
                 <>
-                  <ArrowRight className="w-5 h-5 mr-3" />
-                  Next Movie
+                  <ChevronRight className="w-5 h-5 mr-3" />
+                  Next Dimension
                 </>
               )}
             </Button>
