@@ -61,6 +61,11 @@ export default function Onboarding() {
   const currentDimension = dimensionKeys[currentDimensionIndex];
   const currentDimensionScale = dimensionScales[currentDimension];
 
+  // Get the current dimension's low and high end examples
+  const lowEndExample = currentDimensionScale.levels[0]?.examples[0] || 'Low end';
+  const highEndExample = currentDimensionScale.levels[4]?.examples[0] || 'High end';
+  const allExamples = currentDimensionScale.levels.flatMap(level => level.examples);
+
   // Initialize movies when component mounts
   useEffect(() => {
     const initializeOnboarding = async () => {
@@ -378,7 +383,7 @@ export default function Onboarding() {
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-xl font-bold mb-2">
-                  🎯 Rate: {currentDimensionScale.label}
+                  🎯 Rate: {currentDimensionScale.name}
                 </h3>
                 <p className="text-muted-foreground">
                   {currentDimensionScale.description}
@@ -388,9 +393,9 @@ export default function Onboarding() {
               {/* Spectrum Slider */}
               <div className="space-y-4">
                 <div className="flex justify-between text-sm font-medium">
-                  <span className="text-blue-600">{currentDimensionScale.low_end}</span>
+                  <span className="text-blue-600">{lowEndExample}</span>
                   <span className="text-purple-600">Your Rating</span>
-                  <span className="text-red-600">{currentDimensionScale.high_end}</span>
+                  <span className="text-red-600">{highEndExample}</span>
                 </div>
                 
                 <div className="relative">
@@ -418,7 +423,7 @@ export default function Onboarding() {
                 {/* Example Movies */}
                 <div className="text-center space-y-2">
                   <p className="text-sm text-muted-foreground">Examples:</p>
-                  <ExampleCovers titles={currentDimensionScale.example_movies} />
+                  <ExampleCovers titles={allExamples} />
                 </div>
               </div>
             </div>
