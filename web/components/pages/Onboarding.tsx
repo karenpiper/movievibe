@@ -66,6 +66,26 @@ export default function Onboarding() {
   const highEndExample = currentDimensionScale?.levels?.[4]?.examples?.[0] || 'High end';
   const allExamples = currentDimensionScale?.levels?.flatMap(level => level.examples) || [];
 
+  // Helper functions to get movie data based on rating
+  const getMoviePosterForRating = (rating: number): string => {
+    const level = currentDimensionScale?.levels?.find(l => l.value === rating);
+    if (level?.examples?.[0]) {
+      // For now, using a placeholder. In production, you'd fetch from TMDB
+      return `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&h=300&fit=crop&q=80`;
+    }
+    return `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=200&h=300&fit=crop&q=80`;
+  };
+
+  const getMovieTitleForRating = (rating: number): string => {
+    const level = currentDimensionScale?.levels?.find(l => l.value === rating);
+    return level?.examples?.[0] || 'Example Movie';
+  };
+
+  const getMovieDescriptionForRating = (rating: number): string => {
+    const level = currentDimensionScale?.levels?.find(l => l.value === rating);
+    return level?.description || 'Movie description';
+  };
+
   // Safety check - if no dimension scales loaded yet, show loading
   if (!currentDimensionScale || dimensionKeys.length === 0) {
     return (
@@ -317,11 +337,11 @@ export default function Onboarding() {
     }
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Progress Header */}
-        <div className="space-y-4">
+      <div className="max-w-3xl mx-auto space-y-4">
+        {/* Compact Progress Header */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-xl font-bold">
               🎬 Movie {currentMovieIndex + 1} of {movies.length}
             </h1>
             <Badge variant="outline" className="text-purple-700 border-purple-300">
@@ -329,48 +349,45 @@ export default function Onboarding() {
             </Badge>
           </div>
           
-          {/* Movie Progress */}
+          {/* Combined Progress Bars */}
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>Movie Progress</span>
-              <span>{Math.round(progress)}% complete</span>
+              <span>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Dimension Progress */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <Progress value={progress} className="h-1.5" />
+            
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>Dimension Progress</span>
-              <span>{Math.round(dimensionProgress)}% complete</span>
+              <span>{Math.round(dimensionProgress)}%</span>
             </div>
-            <Progress value={dimensionProgress} className="h-2" />
+            <Progress value={dimensionProgress} className="h-1.5" />
           </div>
         </div>
 
-        {/* Movie Card */}
+        {/* Compact Movie Card */}
         <Card className="bg-gradient-to-br from-background to-accent/20">
-          <CardContent className="pt-6">
-            <div className="grid md:grid-cols-2 gap-6">
+          <CardContent className="pt-4">
+            <div className="grid md:grid-cols-3 gap-4">
               {/* Movie Poster */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="relative">
                   <ImageWithFallback
                     src={currentMovie.poster_url}
                     alt={`${currentMovie.title} poster`}
-                    className="w-full h-80 object-cover rounded-lg shadow-lg"
-                    width={300}
-                    height={450}
+                    className="w-full h-48 object-cover rounded-lg shadow-lg"
+                    width={200}
+                    height={300}
                   />
-                  <div className="absolute top-3 right-3">
-                    <Badge className="bg-black/70 text-white">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-black/70 text-white text-xs">
                       {currentMovie.year}
                     </Badge>
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
-                  {currentMovie.genres.map(genre => (
+                <div className="flex flex-wrap gap-1">
+                  {currentMovie.genres.slice(0, 3).map(genre => (
                     <Badge key={genre} variant="secondary" className="text-xs">
                       {genre}
                     </Badge>
@@ -378,19 +395,19 @@ export default function Onboarding() {
                 </div>
               </div>
 
-              {/* Movie Info */}
-              <div className="space-y-4">
+              {/* Movie Info - More compact */}
+              <div className="md:col-span-2 space-y-3">
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">{currentMovie.title}</h2>
-                  <p className="text-muted-foreground mb-2">
+                  <h2 className="text-xl font-bold mb-1">{currentMovie.title}</h2>
+                  <p className="text-sm text-muted-foreground mb-2">
                     <strong>Director:</strong> {currentMovie.director} • <strong>Runtime:</strong> {currentMovie.runtime}min
                   </p>
                   <p className="text-sm leading-relaxed">{currentMovie.logline}</p>
                 </div>
 
-                <Alert className="border-blue-200 bg-blue-50">
+                <Alert className="border-blue-200 bg-blue-50 py-2">
                   <Sparkles className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-blue-800">
+                  <AlertDescription className="text-blue-800 text-sm">
                     <strong>Why this movie:</strong> {currentMovie.why_selected}
                   </AlertDescription>
                 </Alert>
@@ -401,19 +418,19 @@ export default function Onboarding() {
 
         {/* Current Dimension Rating */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-6">
+          <CardContent className="pt-4">
+            <div className="space-y-4">
               <div className="text-center">
-                <h3 className="text-xl font-bold mb-2">
+                <h3 className="text-lg font-bold mb-1">
                   🎯 Rate: {currentDimensionScale.name}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {currentDimensionScale.description}
                 </p>
               </div>
 
               {/* Spectrum Slider */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex justify-between text-sm font-medium">
                   <span className="text-blue-600">{lowEndExample}</span>
                   <span className="text-purple-600">Your Rating</span>
@@ -442,10 +459,28 @@ export default function Onboarding() {
                   </div>
                 </div>
 
-                {/* Example Movies */}
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">Examples:</p>
-                  <ExampleCovers titles={allExamples} />
+                {/* Dynamic Movie Examples - 75% width, poster on left, title on right */}
+                <div className="w-3/4 mx-auto">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                    {/* Movie Poster - changes based on slider */}
+                    <div className="flex-shrink-0">
+                      <img
+                        src={getMoviePosterForRating(currentRating[currentDimension])}
+                        alt="Example movie"
+                        className="w-16 h-24 object-cover rounded-md shadow-md"
+                      />
+                    </div>
+                    
+                    {/* Movie Title and Description */}
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">
+                        {getMovieTitleForRating(currentRating[currentDimension])}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {getMovieDescriptionForRating(currentRating[currentDimension])}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -453,36 +488,37 @@ export default function Onboarding() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center pt-2">
           <Button
             variant="outline"
             onClick={handleSkipMovie}
+            size="sm"
             className="rounded-full"
           >
             <ArrowRight className="w-4 h-4 mr-2" />
             Skip This Movie
           </Button>
 
-          <div className="flex space-x-4">
+          <div className="flex space-x-3">
             <Button
-              size="lg"
+              size="default"
               onClick={handleNextDimension}
               disabled={isLoading}
-              className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-full"
+              className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-full"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 mr-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Analyzing...
                 </>
               ) : currentDimensionIndex === dimensionKeys.length - 1 ? (
                 <>
-                  <PartyPopper className="w-5 h-5 mr-3" />
+                  <PartyPopper className="w-4 h-4 mr-2" />
                   Next Movie
                 </>
               ) : (
                 <>
-                  <ChevronRight className="w-5 h-5 mr-3" />
+                  <ChevronRight className="w-4 h-4 mr-2" />
                   Next Dimension
                 </>
               )}
