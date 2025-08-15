@@ -62,9 +62,20 @@ export default function Onboarding() {
   const currentDimensionScale = dimensionScales[currentDimension];
 
   // Get the current dimension's low and high end examples
-  const lowEndExample = currentDimensionScale.levels[0]?.examples[0] || 'Low end';
-  const highEndExample = currentDimensionScale.levels[4]?.examples[0] || 'High end';
-  const allExamples = currentDimensionScale.levels.flatMap(level => level.examples);
+  const lowEndExample = currentDimensionScale?.levels?.[0]?.examples?.[0] || 'Low end';
+  const highEndExample = currentDimensionScale?.levels?.[4]?.examples?.[0] || 'High end';
+  const allExamples = currentDimensionScale?.levels?.flatMap(level => level.examples) || [];
+
+  // Safety check - if no dimension scales loaded yet, show loading
+  if (!currentDimensionScale || dimensionKeys.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto text-center space-y-8 py-16">
+        <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
+        <h2 className="text-2xl font-bold">Loading dimension scales...</h2>
+        <p className="text-muted-foreground">Setting up your taste calibration</p>
+      </div>
+    );
+  }
 
   // Initialize movies when component mounts
   useEffect(() => {
@@ -294,6 +305,17 @@ export default function Onboarding() {
 
   // Rating Step - Simplified one dimension at a time
   if (step === 'rating' && currentMovie) {
+    // Safety check - ensure we have all required data
+    if (!currentDimensionScale || !currentDimension) {
+      return (
+        <div className="max-w-4xl mx-auto text-center space-y-8 py-16">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-2xl font-bold">Loading dimension data...</h2>
+          <p className="text-muted-foreground">Preparing your taste calibration</p>
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Progress Header */}
